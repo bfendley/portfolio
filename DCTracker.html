@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drug Court Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to right, #f0f4f8, #ffffff);
+    }
+
+    header {
+      background: #ffecb3;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: #444;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .current-date {
+      text-align: right;
+      font-size: 0.95rem;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+    }
+
+    .calendar, .info-panel, .court-dates {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex: 1 1 300px;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+
+    .day {
+      background: #fefce8;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .day:hover {
+      transform: scale(1.05);
+    }
+
+    .day.active {
+      background: #fff176;
+      border: 2px solid #fdd835;
+    }
+
+    .info-panel select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .pee-cup {
+      width: 100px;
+      height: 160px;
+      margin: 0 auto;
+      position: relative;
+      background: #eee;
+      border-radius: 10px 10px 4px 4px;
+      border: 3px solid #ccc;
+      overflow: hidden;
+    }
+
+    .pee-fill {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: linear-gradient(to top, #fffde7, #fff176);
+      transition: height 0.3s ease-in-out;
+    }
+
+    .label {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .court-dates ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .court-dates li {
+      border-bottom: 1px solid #eee;
+      padding: 6px 0;
+    }
+
+    .footer-note {
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 40px;
+      color: #555;
+    }
+
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .calendar {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  ⚠️ Not affiliated with Arkansas Department of Corrections. Always confirm dates with your officer.
+</header>
+
+<div class="current-date" id="currentDate"></div>
+
+<h1>Drug Court Weekly Tracker</h1>
+
+<div class="layout">
+  <div class="court-dates">
+    <h3>Relevant Court Dates</h3>
+    <ul id="courtList"></ul>
+  </div>
+
+  <div class="calendar" id="calendar"></div>
+
+  <div class="info-panel">
+    <label for="phase">Select Your Phase:</label>
+    <select id="phase" onchange="updateCup()">
+      <option value="1">Phase 1 (3 tests/week)</option>
+      <option value="2">Phase 2 (2 tests/week)</option>
+      <option value="3">Phase 3 (1 test/week)</option>
+      <option value="4">Phase 4 (Reports only)</option>
+    </select>
+
+    <div class="pee-cup">
+      <div class="pee-fill" id="peeFill" style="height: 0%"></div>
+    </div>
+
+    <div class="label" id="testStatus">0 / 3 tests done</div>
+  </div>
+</div>
+
+<div class="footer-note">
+  💳 Pay supervision fees at <a href="https://doc.arkansas.gov/community-correction/division-of-community-correction-community-supervision-fees/" target="_blank">this official DOC site</a>.<br>
+  🏛️ Court fines must be paid separately through your <strong>county court</strong>.
+</div>
+
+<script>
+  const calendar = document.getElementById('calendar');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const peeStatus = Array(7).fill(false);
+  let currentPhase = 1;
+
+  function createCalendar() {
+    days.forEach((day, i) => {
+      const div = document.createElement('div');
+      div.className = 'day';
+      div.textContent = day;
+      div.onclick = () => {
+        peeStatus[i] = !peeStatus[i];
+        div.classList.toggle('active');
+        updateCup();
+      };
+      calendar.appendChild(div);
+    });
+  }
+
+  function updateCup() {
+    currentPhase = parseInt(document.getElementById('phase').value);
+    const maxTests = currentPhase === 1 ? 3 : currentPhase === 2 ? 2 : currentPhase === 3 ? 1 : 0;
+    const testsDone = peeStatus.filter(p => p).length;
+    const fillHeight = Math.min((testsDone / maxTests) * 100, 100);
+    document.getElementById('peeFill').style.height = `${fillHeight}%`;
+    document.getElementById('testStatus').textContent =
+      currentPhase === 4 ? "Reporting only – no tests" : `${testsDone} / ${maxTests} tests done`;
+  }
+
+  // 🗓️ Add dynamic date
+  document.getElementById("currentDate").textContent = `Today's Date: ${new Date().toLocaleDateString()}`;
+
+  // 📋 Court Date List
+  const courtDates = [
+    "2025-01-06 14:00 DIV 3 (All Phases)",
+    "2025-01-27 09:00 DIV 3 (Phase 1 & 2)",
+    "2025-02-10 14:00 DIV 3 (All Phases)",
+    "2025-02-25 09:00 DIV 1 (Phase 1 & 2)",
+    "2025-03-06 09:00 DIV 1 (All Phases)",
+    "2025-03-17 14:00 DIV 3 (Phase 1 & 2)",
+    "2025-04-08 13:00 DIV 3 (All Phases)",
+    "2025-04-16 14:00 DIV 1 (Phase 1 & 2)",
+    "2025-05-06 09:00 DIV 3 (All Phases)",
+    "2025-05-29 14:00 DIV 1 (Phase 1 & 2)",
+    "2025-06-09 09:00 DIV 3 (All Phases)",
+    "2025-06-24 09:00 DIV 1 (Phase 1 & 2)",
+    "2025-07-07 15:00 DIV 1 (All Phases)",
+    "2025-07-22 09:00 DIV 3 (Phase 1 & 2)",
+    "2025-08-05 13:00 DIV 3 (All Phases)",
+    "2025-08-18 09:00 DIV 3 (Phase 1 & 2)",
+    "2025-09-12 09:00 DIV 1 (All Phases)",
+    "2025-09-22 14:00 DIV 3 (Phase 1 & 2)",
+    "2025-10-14 09:00 DIV 3 (All Phases)",
+    "2025-10-28 15:00 DIV 1 (Phase 1 & 2)",
+    "2025-11-10 09:00 DIV 3 (All Phases)",
+    "2025-11-24 09:00 DIV 1 (Phase 1 & 2)",
+    "2025-12-08 15:00 DIV 1 (All Phases)",
+    "2025-12-16 13:00 DIV 3 (Phase 1 & 2)"
+  ];
+
+  function filterCourtDates() {
+    const today = new Date();
+    const courtList = document.getElementById("courtList");
+    courtList.innerHTML = "";
+
+    courtDates.forEach(dateStr => {
+      const [datePart, time, ...rest] = dateStr.split(" ");
+      const date = new Date(datePart);
+      const show = isInCurrentPrevNextMonth(date, today);
+
+      if (show) {
+        const li = document.createElement("li");
+        li.textContent = `${date.toLocaleDateString()} – ${time} – ${rest.join(" ")}`;
+        courtList.appendChild(li);
+      }
+    });
+  }
+
+  function isInCurrentPrevNextMonth(date, reference) {
+    const refMonth = reference.getMonth();
+    const refYear = reference.getFullYear();
+
+    const months = [
+      new Date(refYear, refMonth - 1, 1),
+      new Date(refYear, refMonth, 1),
+      new Date(refYear, refMonth + 1, 1)
+    ];
+
+    return months.some(m =>
+      date.getMonth() === m.getMonth() && date.getFullYear() === m.getFullYear()
+    );
+  }
+
+  createCalendar();
+  filterCourtDates();
+</script>
+
+</body>
+</html>
