@@ -1,58 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Big Papa Dashboard</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle, #000000 0%, #111111 100%);
+      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
       color: #00ffcc;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .tab-bar {
       position: fixed;
       top: 0;
       width: 100%;
+      background-color: #111;
       display: flex;
       justify-content: center;
-      background: #111;
-      padding: 10px 0;
-      z-index: 100;
-      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.4);
+      padding: 10px;
+      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.3);
+      z-index: 1000;
     }
 
     .tab-bar a {
+      text-decoration: none;
+      color: #00ffcc;
       margin: 0 20px;
       font-size: 1.2rem;
-      color: #00ffcc;
-      text-decoration: none;
     }
 
     .tab-bar a:hover {
       color: white;
     }
 
-    .main {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    .header {
+      margin-top: 70px;
       text-align: center;
-      z-index: 10;
-      position: relative;
-      pointer-events: none;
     }
 
     .clock {
       font-size: 6vw;
       text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
-      animation: pulse 2s infinite;
     }
 
     .date {
@@ -65,73 +56,82 @@
       font-size: 1.5vw;
       margin-top: 10px;
       color: #ffffffcc;
+      text-align: center;
     }
 
-    .news, .news2 {
-      width: 90%;
-      white-space: nowrap;
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .news-box {
+      background: #111;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ffaa33;
+      height: 300px;
+      overflow-y: auto;
+    }
+
+    .news-box h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .news-item {
+      font-size: 1rem;
+      padding: 4px 0;
+      color: #bdf;
+    }
+
+    .marquee-strip {
+      margin-top: 30px;
+      width: 100%;
       overflow: hidden;
+      white-space: nowrap;
       box-sizing: border-box;
-      border-top: 1px solid #00ffcc66;
-      padding-top: 10px;
-      margin-top: 20px;
-      font-size: 1.2vw;
+      padding: 10px;
+      background: #002222;
+      color: #00ffff;
+      font-size: 1.1rem;
       animation: marquee 40s linear infinite;
     }
 
-    .news2 {
-      animation-duration: 60s;
-      color: #66ffff;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
-      }
-      50% {
-        text-shadow: 0 0 10px #00cccc, 0 0 20px #00cccc;
-      }
-    }
-
     @keyframes marquee {
-      0% { transform: translateX(100%); }
+      0%   { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
-    }
-
-    model-viewer {
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1;
-      pointer-events: none;
-      opacity: 0.12;
-      filter: drop-shadow(0 0 30px #00ffccaa);
     }
   </style>
 </head>
 <body>
-  <!-- Tabs -->
   <div class="tab-bar">
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">DC Tracker</a>
-    <a href="gaming.html">Gaming Pulse</a>
-    <a href="work.html">Work Insights</a>
+    <a href="https://bfendley.github.io/portfolio/gaming.html">Gaming Pulse</a>
+    <a href="https://bfendley.github.io/portfolio/work.html">Work Insights</a>
   </div>
 
-  <!-- Background GLB -->
-  <model-viewer src="https://modelviewer.dev/shared-assets/models/globe.glb" auto-rotate camera-controls background-color="#000000" disable-zoom></model-viewer>
-
-  <!-- Clock + Info -->
-  <div class="main">
+  <div class="header">
     <div class="clock" id="clock">--:--:-- --</div>
     <div class="date" id="date">Loading...</div>
     <div class="weather" id="weather">Fetching weather...</div>
     <div class="israel-time" id="israelTime">Israel Time: --:--:--</div>
-    <div class="news" id="news">Loading CNN headlines...</div>
-    <div class="news2" id="news2">Loading gaming headlines...</div>
   </div>
+
+  <div class="dashboard">
+    <div class="news-box" id="news1">
+      <h2>📰 CNN Headlines</h2>
+      <!-- Populated by JS -->
+    </div>
+    <div class="news-box" id="news2">
+      <h2>🎮 Gaming News</h2>
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <div class="marquee-strip" id="newsTicker">Loading breaking news...</div>
 
   <script>
     function updateClock() {
@@ -139,8 +139,8 @@
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
       let hours = now.getHours();
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12 || 12;
 
@@ -159,7 +159,8 @@
       let h = israel.getHours(), m = israel.getMinutes(), s = israel.getSeconds();
       const ampm = h >= 12 ? 'PM' : 'AM';
       h = h % 12 || 12;
-      document.getElementById('israelTime').textContent = `Israel Time: ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
+      document.getElementById('israelTime').textContent =
+        `Israel Time: ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
     }
 
     async function fetchWeather(lat, lon) {
@@ -175,34 +176,39 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-          () => document.getElementById('weather').textContent = \"Location denied. Weather unavailable.\"
+          () => document.getElementById('weather').textContent = \"Location denied.\"
         );
       } else {
         document.getElementById('weather').textContent = \"Geolocation not supported.\";
       }
     }
 
-    async function fetchNews(feedUrl, elementId) {
+    async function fetchNews(feedUrl, targetId, ticker = false) {
       try {
         const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
         const res = await fetch(proxy);
         const data = await res.json();
-        const headlines = data.items.slice(0, 10).map(item => item.title).join(' • ');
-        document.getElementById(elementId).textContent = headlines;
-      } catch (e) {
-        console.error(e);
-        document.getElementById(elementId).textContent = \"Could not load headlines.\";
+        const container = document.getElementById(targetId);
+
+        if (ticker) {
+          const headlines = data.items.slice(0, 20).map(item => item.title).join(' • ');
+          container.textContent = headlines;
+        } else {
+          container.innerHTML += data.items.slice(0, 10).map(item => `<div class='news-item'>${item.title}</div>`).join('');
+        }
+      } catch {
+        document.getElementById(targetId).textContent = \"Could not load headlines.\";
       }
     }
 
     updateClock();
     getLocationAndWeather();
 
-    fetchNews(\"https://rss.cnn.com/rss/edition.rss\", \"news\"); // General news
-    fetchNews(\"https://www.gamespot.com/feeds/news/\", \"news2\"); // Gaming/Tech RSS
+    fetchNews(\"https://rss.cnn.com/rss/edition.rss\", \"news1\");
+    fetchNews(\"https://www.gamespot.com/feeds/news/\", \"news2\");
+    fetchNews(\"https://rss.cnn.com/rss/cnn_latest.rss\", \"newsTicker\", true);
 
-    setInterval(() => fetchNews(\"https://rss.cnn.com/rss/edition.rss\", \"news\"), 30 * 60 * 1000);
-    setInterval(() => fetchNews(\"https://www.gamespot.com/feeds/news/\", \"news2\"), 30 * 60 * 1000);
+    setInterval(() => fetchNews(\"https://rss.cnn.com/rss/cnn_latest.rss\", \"newsTicker\", true), 30 * 60 * 1000);
   </script>
 </body>
 </html>
