@@ -21,6 +21,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      text-align: center;
     }
 
     .tab-bar {
@@ -48,10 +49,22 @@
     }
 
     .clock {
-      font-size: 8vw;
+      font-size: 6vw;
       text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
       letter-spacing: 0.1em;
       animation: pulse 2s infinite ease-in-out;
+    }
+
+    .date {
+      font-size: 2vw;
+      margin-top: 10px;
+      color: #aaffee;
+    }
+
+    .weather {
+      font-size: 1.5vw;
+      margin-top: 15px;
+      color: #ffffffcc;
     }
 
     @keyframes pulse {
@@ -72,19 +85,59 @@
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 3</a>
   </div>
 
-  <div class="clock" id="clock">--:--:--</div>
+  <div class="clock" id="clock">--:--:-- --</div>
+  <div class="date" id="date">Loading...</div>
+  <div class="weather" id="weather">Fetching weather...</div>
 
   <script>
     function updateClock() {
       const now = new Date();
-      const hrs = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
-      const secs = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('clock').textContent = `${hrs}:${mins}:${secs}`;
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      const timeStr = `${hours}:${minutes}:${seconds} ${ampm}`;
+      const dateStr = now.toLocaleDateString(undefined, options);
+
+      document.getElementById('clock').textContent = timeStr;
+      document.getElementById('date').textContent = dateStr;
+
       requestAnimationFrame(updateClock);
     }
 
+    async function fetchWeather(lat, lon) {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await res.json();
+      const weather = data.current_weather;
+      const output = `🌡 ${weather.temperature}°C | 🌬 ${weather.windspeed} km/h`;
+      document.getElementById('weather').textContent = output;
+    }
+
+    function getLocationAndWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            fetchWeather(lat, lon);
+          },
+          () => {
+            document.getElementById('weather').textContent = "Location denied. Weather unavailable.";
+          }
+        );
+      } else {
+        document.getElementById('weather').textContent = "Geolocation not supported.";
+      }
+    }
+
     updateClock();
+    getLocationAndWeather();
   </script>
 </body>
 </html>
