@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Analytics Dashboard</title>
+  <title>Big Papa Dashboard</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
@@ -116,8 +116,8 @@
   <!-- Tabs -->
   <div class="tab-bar">
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">DC Tracker</a>
-    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Gaming Pulse</a>
-    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Work Insights</a>
+    <a href="gaming.html">Gaming Pulse</a>
+    <a href="work.html">Work Insights</a>
   </div>
 
   <!-- Background GLB -->
@@ -142,7 +142,6 @@
       const minutes = now.getMinutes().toString().padStart(2, '0');
       const seconds = now.getSeconds().toString().padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
-
       hours = hours % 12 || 12;
 
       document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
@@ -167,7 +166,7 @@
       const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph`);
       const data = await res.json();
       const weather = data.current_weather;
-      const rain = weather.precipitation > 0 ? "Yes" : "No";
+      const rain = weather.precipitation > 0 ? \"Yes\" : \"No\";
       const output = `🌡 ${weather.temperature}°F | 🌬 ${weather.windspeed} mph | 🌧 Rain: ${rain}`;
       document.getElementById('weather').textContent = output;
     }
@@ -176,10 +175,10 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-          () => document.getElementById('weather').textContent = "Location denied. Weather unavailable."
+          () => document.getElementById('weather').textContent = \"Location denied. Weather unavailable.\"
         );
       } else {
-        document.getElementById('weather').textContent = "Geolocation not supported.";
+        document.getElementById('weather').textContent = \"Geolocation not supported.\";
       }
     }
 
@@ -192,18 +191,18 @@
         document.getElementById(elementId).textContent = headlines;
       } catch (e) {
         console.error(e);
-        document.getElementById(elementId).textContent = "Could not load headlines.";
+        document.getElementById(elementId).textContent = \"Could not load headlines.\";
       }
     }
 
     updateClock();
     getLocationAndWeather();
 
-    fetchNews("https://rss.cnn.com/rss/edition.rss", "news"); // General news
-    fetchNews("https://www.gamespot.com/feeds/news/", "news2"); // Gaming/Tech RSS
+    fetchNews(\"https://rss.cnn.com/rss/edition.rss\", \"news\"); // General news
+    fetchNews(\"https://www.gamespot.com/feeds/news/\", \"news2\"); // Gaming/Tech RSS
 
-    setInterval(() => fetchNews("https://rss.cnn.com/rss/edition.rss", "news"), 30 * 60 * 1000);
-    setInterval(() => fetchNews("https://www.gamespot.com/feeds/news/", "news2"), 30 * 60 * 1000);
+    setInterval(() => fetchNews(\"https://rss.cnn.com/rss/edition.rss\", \"news\"), 30 * 60 * 1000);
+    setInterval(() => fetchNews(\"https://www.gamespot.com/feeds/news/\", \"news2\"), 30 * 60 * 1000);
   </script>
 </body>
 </html>
