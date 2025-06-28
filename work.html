@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work Insights</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #000814 0%, #001d3d 100%);
+      color: #00e5ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 60px;
+    }
+
+    .tab-bar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: #002244;
+      padding: 10px 0;
+      box-shadow: 0 4px 10px rgba(0, 229, 255, 0.3);
+      z-index: 100;
+    }
+
+    .tab-bar a {
+      margin: 0 20px;
+      font-size: 1.2rem;
+      color: #00e5ff;
+      text-decoration: none;
+    }
+
+    .tab-bar a:hover {
+      color: white;
+    }
+
+    h1 {
+      font-size: 3vw;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00e5ff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      width: 90%;
+      margin-top: 20px;
+    }
+
+    .panel {
+      background: #011627;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #00c7ff55;
+      transition: transform 0.3s ease;
+    }
+
+    .panel:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px #00ffff88;
+    }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .panel p {
+      font-size: 1rem;
+      color: #bbf0ff;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 1rem;
+      color: #7fffd4aa;
+    }
+  </style>
+</head>
+<body>
+  <div class="tab-bar">
+    <a href="index.html">Main Dashboard</a>
+    <a href="gaming.html">Gaming Pulse</a>
+    <a href="work.html">Work Insights</a>
+  </div>
+
+  <h1>🧠 Work Insights</h1>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>🛠️ Workday Integration Health</h2>
+      <p>Active Integrations: <strong>14</strong></p>
+      <p>Failures Today: <strong>0</strong> ✅</p>
+      <p>Last Issue: <em>5 days ago</em></p>
+    </div>
+
+    <div class="panel">
+      <h2>📊 AI Agent Activity</h2>
+      <p>Copilot Prompts Used: <strong>327</strong></p>
+      <p>GPT Integration Checks: <strong>74</strong></p>
+      <p>Most Queried: <em>JSON > XML Map Builder</em></p>
+    </div>
+
+    <div class="panel">
+      <h2>🚨 Alerts & Notices</h2>
+      <p>No critical alerts.</p>
+      <p>Next patch scheduled: <strong>July 8</strong></p>
+      <p>Workday Weekly Digest arriving tomorrow.</p>
+    </div>
+
+    <div class="panel">
+      <h2>📈 Developer Metrics</h2>
+      <p>Lines of Code (7d): <strong>3,942</strong></p>
+      <p>Deployments: <strong>4</strong></p>
+      <p>Code Review Approvals: <strong>11</strong></p>
+    </div>
+  </div>
+
+  <div class="footer">Productivity data synced with Big Papa Dashboard • Extend & Beyond</div>
+</body>
+</html>
