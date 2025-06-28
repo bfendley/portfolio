@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fancy Clock</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
+      color: #00ffcc;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .tab-bar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.3);
+      z-index: 10;
+    }
+
+    .tab-bar a {
+      text-decoration: none;
+      color: #00ffcc;
+      margin: 0 15px;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+    }
+
+    .tab-bar a:hover {
+      color: #ffffff;
+    }
+
+    .clock {
+      font-size: 8vw;
+      text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
+      letter-spacing: 0.1em;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
+      }
+      50% {
+        text-shadow: 0 0 10px #00cccc, 0 0 20px #00cccc;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tab-bar">
+    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">DC Tracker</a>
+    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 2</a>
+    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 3</a>
+  </div>
+
+  <div class="clock" id="clock">--:--:--</div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const hrs = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const secs = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${hrs}:${mins}:${secs}`;
+      requestAnimationFrame(updateClock);
+    }
+
+    updateClock();
+  </script>
+</body>
+</html>
