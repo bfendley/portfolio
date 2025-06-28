@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Big Papa Dashboard</title>
+  <title>Analytics Dashboard</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
@@ -61,13 +61,13 @@
       color: #aaffee;
     }
 
-    .weather, .israel-time, .news {
+    .weather, .israel-time {
       font-size: 1.5vw;
       margin-top: 10px;
       color: #ffffffcc;
     }
 
-    .news {
+    .news, .news2 {
       width: 90%;
       white-space: nowrap;
       overflow: hidden;
@@ -77,6 +77,11 @@
       margin-top: 20px;
       font-size: 1.2vw;
       animation: marquee 40s linear infinite;
+    }
+
+    .news2 {
+      animation-duration: 60s;
+      color: #66ffff;
     }
 
     @keyframes pulse {
@@ -108,26 +113,26 @@
   </style>
 </head>
 <body>
-  <!-- Top Tab Bar -->
+  <!-- Tabs -->
   <div class="tab-bar">
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">DC Tracker</a>
-    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 2</a>
-    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 3</a>
+    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Gaming Pulse</a>
+    <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Work Insights</a>
   </div>
 
-  <!-- 3D Model -->
+  <!-- Background GLB -->
   <model-viewer src="https://modelviewer.dev/shared-assets/models/globe.glb" auto-rotate camera-controls background-color="#000000" disable-zoom></model-viewer>
 
-  <!-- Clock and Info -->
+  <!-- Clock + Info -->
   <div class="main">
     <div class="clock" id="clock">--:--:-- --</div>
     <div class="date" id="date">Loading...</div>
     <div class="weather" id="weather">Fetching weather...</div>
     <div class="israel-time" id="israelTime">Israel Time: --:--:--</div>
-    <div class="news" id="news">Loading headlines...</div>
+    <div class="news" id="news">Loading CNN headlines...</div>
+    <div class="news2" id="news2">Loading gaming headlines...</div>
   </div>
 
-  <!-- Script -->
   <script>
     function updateClock() {
       const now = new Date();
@@ -148,7 +153,7 @@
     }
 
     function updateIsraelTime() {
-      const israelOffset = 3 * 60; // UTC+3
+      const israelOffset = 3 * 60;
       const now = new Date();
       const utc = now.getTime() + now.getTimezoneOffset() * 60000;
       const israel = new Date(utc + 60000 * israelOffset);
@@ -178,30 +183,27 @@
       }
     }
 
-    async function fetchNews() {
+    async function fetchNews(feedUrl, elementId) {
       try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://rss.cnn.com/rss/edition.rss');
-        const res = await fetch(proxyUrl);
+        const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+        const res = await fetch(proxy);
         const data = await res.json();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(data.contents, 'text/xml');
-        const items = xml.querySelectorAll('item');
-
-        const headlines = Array.from(items).slice(0, 10)
-          .map(item => item.querySelector('title').textContent)
-          .join(' • ');
-
-        document.getElementById('news').textContent = headlines;
+        const headlines = data.items.slice(0, 10).map(item => item.title).join(' • ');
+        document.getElementById(elementId).textContent = headlines;
       } catch (e) {
         console.error(e);
-        document.getElementById('news').textContent = "Could not load headlines.";
+        document.getElementById(elementId).textContent = "Could not load headlines.";
       }
     }
 
     updateClock();
     getLocationAndWeather();
-    fetchNews();
-    setInterval(fetchNews, 30 * 60 * 1000); // refresh headlines every 30 mins
+
+    fetchNews("https://rss.cnn.com/rss/edition.rss", "news"); // General news
+    fetchNews("https://www.gamespot.com/feeds/news/", "news2"); // Gaming/Tech RSS
+
+    setInterval(() => fetchNews("https://rss.cnn.com/rss/edition.rss", "news"), 30 * 60 * 1000);
+    setInterval(() => fetchNews("https://www.gamespot.com/feeds/news/", "news2"), 30 * 60 * 1000);
   </script>
 </body>
 </html>
