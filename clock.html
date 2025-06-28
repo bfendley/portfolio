@@ -1,58 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fancy Clock</title>
+  <title>Epic Dashboard</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
-      color: #00ffcc;
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      background: radial-gradient(circle, #000000 0%, #111111 100%);
+      color: #00ffcc;
       overflow: hidden;
-      text-align: center;
     }
 
     .tab-bar {
       position: fixed;
       top: 0;
       width: 100%;
-      background-color: #111;
       display: flex;
       justify-content: center;
+      background: #111;
       padding: 10px 0;
-      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.3);
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0, 255, 204, 0.4);
     }
 
     .tab-bar a {
-      text-decoration: none;
-      color: #00ffcc;
-      margin: 0 15px;
+      margin: 0 20px;
       font-size: 1.2rem;
-      transition: color 0.3s ease;
+      color: #00ffcc;
+      text-decoration: none;
     }
 
     .tab-bar a:hover {
-      color: #ffffff;
+      color: white;
+    }
+
+    .main {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 10;
+      position: relative;
     }
 
     .clock {
       font-size: 6vw;
       text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc;
-      letter-spacing: 0.1em;
-      animation: pulse 2s infinite ease-in-out;
+      animation: pulse 2s infinite;
     }
 
     .date {
@@ -61,10 +60,22 @@
       color: #aaffee;
     }
 
-    .weather {
+    .weather, .israel-time, .news {
       font-size: 1.5vw;
-      margin-top: 15px;
+      margin-top: 10px;
       color: #ffffffcc;
+    }
+
+    .news {
+      width: 90%;
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+      border-top: 1px solid #00ffcc66;
+      padding-top: 10px;
+      margin-top: 20px;
+      font-size: 1.2vw;
+      animation: marquee 30s linear infinite;
     }
 
     @keyframes pulse {
@@ -75,19 +86,42 @@
         text-shadow: 0 0 10px #00cccc, 0 0 20px #00cccc;
       }
     }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    model-viewer {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.1;
+      filter: drop-shadow(0 0 30px #00ffccaa);
+    }
   </style>
 </head>
 <body>
-
   <div class="tab-bar">
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">DC Tracker</a>
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 2</a>
     <a href="https://bfendley.github.io/portfolio/DCTracker.html" target="_blank">Tab 3</a>
   </div>
 
-  <div class="clock" id="clock">--:--:-- --</div>
-  <div class="date" id="date">Loading...</div>
-  <div class="weather" id="weather">Fetching weather...</div>
+  <model-viewer src="https://modelviewer.dev/shared-assets/models/globe.glb" auto-rotate camera-controls background-color="#000000" disable-zoom></model-viewer>
+
+  <div class="main">
+    <div class="clock" id="clock">--:--:-- --</div>
+    <div class="date" id="date">Loading...</div>
+    <div class="weather" id="weather">Fetching weather...</div>
+    <div class="israel-time" id="israelTime">Israel Time: --:--:--</div>
+    <div class="news" id="news">Loading headlines...</div>
+  </div>
 
   <script>
     function updateClock() {
@@ -99,48 +133,61 @@
       const seconds = now.getSeconds().toString().padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
 
-      hours = hours % 12;
-      hours = hours ? hours : 12;
+      hours = hours % 12 || 12;
 
-      const timeStr = `${hours}:${minutes}:${seconds} ${ampm}`;
-      const dateStr = now.toLocaleDateString(undefined, options);
+      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
 
-      document.getElementById('clock').textContent = timeStr;
-      document.getElementById('date').textContent = dateStr;
-
+      updateIsraelTime();
       requestAnimationFrame(updateClock);
     }
 
+    function updateIsraelTime() {
+      const israelOffset = 3 * 60; // UTC+3
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const israel = new Date(utc + 60000 * israelOffset);
+      let h = israel.getHours(), m = israel.getMinutes(), s = israel.getSeconds();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      document.getElementById('israelTime').textContent = `Israel Time: ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
+    }
+
     async function fetchWeather(lat, lon) {
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability&temperature_unit=fahrenheit&windspeed_unit=mph`);
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph`);
       const data = await res.json();
-
       const weather = data.current_weather;
-      const isRaining = weather.precipitation && weather.precipitation > 0;
-
-      const output = `🌡 ${weather.temperature}°F | 🌬 ${weather.windspeed} mph | 🌧 Rain: ${isRaining ? "Yes" : "No"}`;
+      const rain = weather.precipitation > 0 ? "Yes" : "No";
+      const output = `🌡 ${weather.temperature}°F | 🌬 ${weather.windspeed} mph | 🌧 Rain: ${rain}`;
       document.getElementById('weather').textContent = output;
     }
 
     function getLocationAndWeather() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          pos => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            fetchWeather(lat, lon);
-          },
-          () => {
-            document.getElementById('weather').textContent = "Location denied. Weather unavailable.";
-          }
+          pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+          () => document.getElementById('weather').textContent = "Location denied. Weather unavailable."
         );
       } else {
         document.getElementById('weather').textContent = "Geolocation not supported.";
       }
     }
 
+    async function fetchNews() {
+      try {
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://rss.cnn.com/rss/edition.rss');
+        const data = await res.json();
+        const headlines = data.items.slice(0, 10).map(item => item.title).join(' • ');
+        document.getElementById('news').textContent = headlines;
+      } catch (e) {
+        document.getElementById('news').textContent = "Could not load headlines.";
+      }
+    }
+
     updateClock();
     getLocationAndWeather();
+    fetchNews();
+    setInterval(fetchNews, 30 * 60 * 1000); // refresh every 30 mins
   </script>
 </body>
 </html>
