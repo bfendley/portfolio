@@ -112,10 +112,13 @@
     }
 
     async function fetchWeather(lat, lon) {
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability&temperature_unit=fahrenheit&windspeed_unit=mph`);
       const data = await res.json();
+
       const weather = data.current_weather;
-      const output = `🌡 ${weather.temperature}°C | 🌬 ${weather.windspeed} km/h`;
+      const isRaining = weather.precipitation && weather.precipitation > 0;
+
+      const output = `🌡 ${weather.temperature}°F | 🌬 ${weather.windspeed} mph | 🌧 Rain: ${isRaining ? "Yes" : "No"}`;
       document.getElementById('weather').textContent = output;
     }
 
