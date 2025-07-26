@@ -1,0 +1,13 @@
+{
+  "name": "workday-xslt",
+  "version": "1.0.0",
+  "description": "Example XSLT transformations for Workday XML",
+  "main": "transform.js",
+  "type": "commonjs",
+  "dependencies": {
+    "xslt-processor": "^3.3.1"
+  },
+  "scripts": {
+    "test": "node --check transform.js"
+  }
+}
